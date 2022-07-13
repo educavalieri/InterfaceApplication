@@ -4,6 +4,7 @@ package com.educavalieri.interfaceIt.services.implement;
 import com.educavalieri.interfaceIt.dtos.MessageDto;
 import com.educavalieri.interfaceIt.entities.Message;
 import com.educavalieri.interfaceIt.entities.User;
+import com.educavalieri.interfaceIt.mapper.MessageMapper;
 import com.educavalieri.interfaceIt.repositories.MessageRepository;
 import com.educavalieri.interfaceIt.repositories.UserRepository;
 import com.educavalieri.interfaceIt.services.MessageService;
@@ -42,13 +43,10 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public MessageDto findById(Long id) {
+
         Message message = messageRepository.findById(id).get();
-        return MessageDto
-                .builder()
-                .userId(message.getUser().getId())
-                .text(message.getText())
-                .code(message.getCode())
-                .build();
+        return MessageMapper.toDto(message);
+
     }
 
     @Override
@@ -56,21 +54,9 @@ public class MessageServiceImpl implements MessageService {
     public MessageDto insert(MessageDto messageDto) {
 
         User user = userRepository.getById(messageDto.getUserId());
-
-        Message message = Message
-                .builder()
-                .text(messageDto.getText())
-                .code(messageDto.getCode())
-                .user(user)
-                .build();
-
+        Message message = MessageMapper.toEntity(messageDto, user);
         messageRepository.save(message);
-        
-        return MessageDto
-                .builder()
-                .code(message.getCode())
-                .text(message.getText())
-                .userId(user.getId())
-                .build();
+
+        return MessageMapper.toDto(message);
     }
 }
